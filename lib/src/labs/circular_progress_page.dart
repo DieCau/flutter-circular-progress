@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:ui';
 
-
 class CircularProgressPage extends StatefulWidget {
   const CircularProgressPage({super.key});
 
@@ -13,7 +12,7 @@ class CircularProgressPage extends StatefulWidget {
 class _CircularProgressPageState extends State<CircularProgressPage>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
-  double porcentaje = 10.0;
+  double porcentaje = 0.0;
   double nuevoPorcentaje = 0.0;
 
   @override
@@ -22,11 +21,10 @@ class _CircularProgressPageState extends State<CircularProgressPage>
 
     controller.addListener(() {
       // print('valor controller: ${controller.value}');
-      
-      setState(() {
-        porcentaje = lerpDouble(porcentaje, nuevoPorcentaje, controller.value)!;
-      });
 
+      setState(() {
+        porcentaje = lerpDouble(porcentaje, nuevoPorcentaje, controller.value)!.toDouble();
+      });
     });
     super.initState();
   }
@@ -40,9 +38,24 @@ class _CircularProgressPageState extends State<CircularProgressPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        shape: const StadiumBorder(),
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.refresh),
+        onPressed: () {
+          porcentaje = nuevoPorcentaje;
+          nuevoPorcentaje += 10;
+          if (nuevoPorcentaje > 100) {
+            nuevoPorcentaje = 0;
+            porcentaje = 0;
+          }
+
+          controller.forward(from: 0.0);
+          setState(() {});
+        },
+      ),
       body: Center(
-        child: 
-        Container(
+        child: Container(
           padding: const EdgeInsets.all(3),
           width: 300,
           height: 300,
@@ -51,20 +64,6 @@ class _CircularProgressPageState extends State<CircularProgressPage>
             painter: _MiRadialProgress(porcentaje),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          porcentaje += 10;
-          if (porcentaje > 100) {
-            porcentaje = 0;
-          }
-
-          controller.forward(from: 0.0);
-          setState(() {});
-        },
-        shape: const StadiumBorder(),
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.refresh),
       ),
     );
   }
